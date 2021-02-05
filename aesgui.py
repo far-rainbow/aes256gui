@@ -16,13 +16,13 @@ class App(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.title = 'AES256 encrypt decrypt GUI'
+        self.title = "AES256 encrypt decrypt GUI"
         
-        # координаты отображения окна программы при старте
+        # window left top coord
         self.left = 32
         self.top = 32
         
-        # высота и ширина окна при запуске
+        # initial windows width and height
         self.width = 600
         self.height = 400
         
@@ -37,7 +37,7 @@ class App(QMainWindow):
         self.initUI()
         
     def initUI(self):
-        ''' инициализация UI, блоки вынесены в отдельные методы '''
+        ''' UI init, window sections are in separate methods '''
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.setStyleSheet('font-size:16px;background-color:#202020;color:#f0f0f0;')
@@ -52,14 +52,14 @@ class App(QMainWindow):
         central_widget.setLayout(grid)
 
     def fileselectorWidget(self):
-        ''' создание верхнего блока с выбором файла '''
+        ''' top section with file picker '''
         groupBox = QGroupBox()
         hbox = QHBoxLayout()
-        label = QLabel("Файл:")
+        label = QLabel("file:")
         label.setStyleSheet(self.labelDesign)
         self.filename = QLineEdit()
         self.filename.setStyleSheet('font-size:16px;color:#f0f0f0;background-color:#404040;border: 0px;')
-        button = QPushButton("Выбор файла")
+        button = QPushButton("Choose file")
         button.setStyleSheet('font-size:16px;color:#f0f0f0;background-color:#808080;border: 0px;padding:4px;')
         button.clicked.connect(self.chooseFile)
         hbox.addWidget(label)
@@ -70,20 +70,20 @@ class App(QMainWindow):
         return groupBox
 
     def buttonsWidget(self):
-        ''' создание блока с конпками '''
+        ''' buttons section '''
         groupBox = QGroupBox()
         vbox = QVBoxLayout()
         hbox = QHBoxLayout()
-        buttonEncrypt = QPushButton('Зашифровать')
+        buttonEncrypt = QPushButton('Encrypt')
         buttonEncrypt.setStyleSheet('font-size:16px;color:#f0f0f0;background-color:#f06060;border: 1px solid #804040;padding:4px;')
         buttonEncrypt.clicked.connect(lambda: self.butclick('encrypt'))
-        buttonDecrypt = QPushButton('Расшифровать')
+        buttonDecrypt = QPushButton('Decrypt')
         buttonDecrypt.setStyleSheet('font-size:16px;color:#f0f0f0;background-color:#40f060;border: 1px solid #208040;padding:4px;')
         buttonDecrypt.clicked.connect(lambda: self.butclick('decrypt'))
         hbox.addWidget(buttonEncrypt)
         hbox.addWidget(buttonDecrypt)
         vbox.addLayout(hbox)
-        buttonInit = QPushButton('Сгенерировать ключ')
+        buttonInit = QPushButton('Generate key')
         buttonInit.setStyleSheet('font-size:16px;color:#f0f0f0;background-color:#4070f0;border: 1px solid #204080;padding:4px;')
         buttonInit.clicked.connect(lambda: self.butclick('keygen'))
         vbox.addWidget(buttonInit)
@@ -92,8 +92,8 @@ class App(QMainWindow):
         return groupBox
 
     def keytextWidget(self):
-        ''' создание центрального блока с представлением ключа и вводом пароля '''
-        groupBox = QGroupBox('Ключ шифрования (кодировка Base64)')
+        ''' key and password middle section '''
+        groupBox = QGroupBox('Encryption key (Base64 encoding)')
         hbox = QHBoxLayout()
         vbox = QVBoxLayout()
 
@@ -102,7 +102,7 @@ class App(QMainWindow):
         self.keytext.setStyleSheet('font-size:16px;color:#f0f0f0;background-color:#404040;border: 0px;margin-top:8px')
         vbox.addWidget(self.keytext)
 
-        pwdLabel = QLabel('Пароль:')
+        pwdLabel = QLabel('Password:')
         pwdLabel.setStyleSheet(self.labelDesign)
         self.pwdInput = QLineEdit()
         self.pwdInput.setStyleSheet('font-size:16px;color:#f0f0f0;background-color:#404040;border: 0px;')
@@ -115,16 +115,16 @@ class App(QMainWindow):
         return groupBox
 
     def butclick(self,cmd):
-        ''' обработка кнопок шифрования, дешифрования и генерации '''
+        ''' button events (encrypt,decrypt,key generation) logic '''
         if cmd == 'encrypt':
-            #проверка существует ли введённый или выбранный файл на диске
+            # is file excist check
             if os.path.isfile(self.filename.text()):
                 try:
-                    # если пароль не введён, то испольуем пустой пароль
+                    # if no password has entered then use empty password
                     key = b64decode(self.keytext.toPlainText())
                 except:
                     key = ''
-                # проверка длинны ключа, должен быть ровно 32 байта
+                # key lenght check, must be 32 bytes exactly!
                 if len(key) == 32:
                     filename = self.filename.text()
                     data = self.getFile(filename)
@@ -132,73 +132,72 @@ class App(QMainWindow):
                     cipher_text = cipher.encrypt(pad(data,32))
                     self.saveFile(f'{filename}.crypted',cipher_text)
                     self.saveKeyfile(f'{filename}.key',self.keytext.toPlainText())
-                    self.warning(f'Зашифрованный файл сохранён в {filename}.crypted\nКлюч сохранён в {filename}.key')
+                    self.warning(f"Encrypted file was saved as {filename}.crypted\nEncryption key was saved as {filename}.key")
                 else:
-                    self.warning('Неверный ключ!')
+                    self.warning("WRONG KEY!")
             else:
-                self.warning('Файл не выбран!')
+                self.warning("File is not selected! Please choose a file.")
         elif cmd == 'decrypt':
-            #проверка существует ли введённый или выбранный файл на диске
+            # is file excist check
             if os.path.isfile(self.filename.text()):
                 try:
-                    # если пароль не введён, то испольуем пустой пароль
+                    # if no password has entered then use empty password
                     key = b64decode(self.keytext.toPlainText())
                 except:
                     key = ''
-                # проверка длинны ключа, должен быть ровно 32 байта
+                # key lenght check, must be 32 bytes exactly!
                 if len(key) == 32:
                     filename = self.filename.text()
                     filedata = self.getFile(f'{filename}')
                     cipher = AES.new(key, AES.MODE_ECB)
                     try:
-                        # если дешифрация не удаётся, то возникает исключение
-                        # это значит, что файл имеет неподходящую структуру
+                        # exception if decryption is not possible
+                        # it means that file has wrong structure (not AES256)
                         data = cipher.decrypt(filedata)
                     except Exception as e:
                         print(e)
-                        self.warning('Файл не годится для дешифрования!')
+                        self.warning("This file can't be decrypted!")
                         return
                     try:
-                        # если возникает исключение на этом этапе, значит
-                        # файл имеет подходящую структуру, но ключ не годится
-                        # для дешифрования. здесь также может возникнуть
-                        # исключение по ошибке сохранения на диск, но в данном
-                        # случае оно не обрабатывается, как малозначимое
+                        # the exception at this point is means that the file
+                        # has good AES-256 structure but the key/pass is wrong
+                        # Also there may be a disk i/o exception error while
+                        # saving a file to disk but there is not sense of
+                        # handling it becouse your disk must work well everytime
                         self.saveFile(f'{filename}.decrypted',unpad(data,32))
                     except Exception as e:
                         print(e)
-                        self.warning('Неверный ключ!')
+                        self.warning("Wrong key/pass!")
                         return
-                    self.warning(f'Расшифрованный файл сохранён в {filename}.decrypted')
+                    self.warning(f"Decrypted file was saved as {filename}.decrypted")
                 else:
-                    self.warning('Неверный ключ!')
+                    self.warning("Wrong key/pass!")
             else:
-                self.warning('Файл не выбран!')
+                self.warning("File is not selected! Please choose a file.")
         elif cmd == 'keygen':
             self.keygen()
 
     def keygen(self):
-        ''' генерация ключа по паролю с пустой солью '''
-        # в качестве соли используется 16 нулевых байтов
-        # этот способ практикуется для упрощения шифрования с потерей сложности
+        ''' key generation with empty salt ("easy mode", feel free to write salted algo) '''
+        # "easy mode" has a salt of 16 zero bytes
         salt = 16 * b'\0'
         private_key = hashlib.scrypt(self.pwdInput.text().encode(), salt=salt, n=2**14, r=8, p=1, dklen=32)
         self.keytext.setText(b64encode(private_key).decode('utf-8'))
 
     def chooseFile(self):
-        ''' диалог выбора файла '''
-        fname = QFileDialog.getOpenFileName(self, 'Выбор файла', str(Path.home()))
+        ''' file picker dialog '''
+        fname = QFileDialog.getOpenFileName(self, "Open file", str(Path.home()))
         if fname[0]:
             self.filename.setText(fname[0])
 
     def getFile(self,filename):
-        ''' загрузка файла в бинарном виде '''
+        ''' binary mode file loader '''
         with open(filename,'rb') as f:
             data = f.read()
         return data
 
     def saveKeyfile(self,filename,data):
-        ''' сохранить текстовый файл '''
+        ''' save text file to disk'''
         try:
             with open(filename,'w') as f:
                 f.write(data)
@@ -206,7 +205,7 @@ class App(QMainWindow):
             print(e)
 
     def saveFile(self,filename,data):
-        ''' сохранить бинарный файл '''
+        ''' save binary file to disk '''
         try:
             with open(filename,'wb') as f:
                 f.write(data)
@@ -214,17 +213,17 @@ class App(QMainWindow):
             print(e)
 
     def warning(self,message):
-        ''' всплывающее окно предупреждения '''
+        ''' warning floating window '''
         q = QMessageBox()
         q.setStyleSheet('QMessageBox {font-size:16px;background-color:#a0a0a0;} ')
-        QMessageBox.question(q, 'ВНИМАНИЕ!', message, QMessageBox.Ok)
+        QMessageBox.question(q, "WARNING!", message, QMessageBox.Ok)
 
     def closeEvent(self, event):
-        ''' обработка выхода из программы '''
+        ''' application exit handler '''
         r = QMessageBox()
         r.setStyleSheet('QMessageBox {font-size:16px;background-color:#a0a0a0;}')
-        reply = QMessageBox.question(r, 'ВНИМАНИЕ!',
-            "Выход?", QMessageBox.Yes | 
+        reply = QMessageBox.question(r, "WARNING!",
+            "Are you want to exit?", QMessageBox.Yes | 
             QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
