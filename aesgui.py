@@ -22,7 +22,7 @@ class App(QMainWindow):
         self.left = 32
         self.top = 32
         
-        # initial windows width and height
+        # initial window width and height
         self.width = 600
         self.height = 400
         
@@ -117,10 +117,10 @@ class App(QMainWindow):
     def butclick(self,cmd):
         ''' button events (encrypt,decrypt,key generation) logic '''
         if cmd == 'encrypt':
-            # is file excist check
+            # is file exist check
             if os.path.isfile(self.filename.text()):
                 try:
-                    # if no password has entered then use empty password
+                    # if no password was entered then use empty password
                     key = b64decode(self.keytext.toPlainText())
                 except:
                     key = ''
@@ -141,11 +141,11 @@ class App(QMainWindow):
             # is file excist check
             if os.path.isfile(self.filename.text()):
                 try:
-                    # if no password has entered then use empty password
+                    # if no password was entered then use empty password
                     key = b64decode(self.keytext.toPlainText())
                 except:
                     key = ''
-                # key lenght check, must be 32 bytes exactly!
+                # key lenght check, must be exactly 32 bytes long!
                 if len(key) == 32:
                     filename = self.filename.text()
                     filedata = self.getFile(f'{filename}')
@@ -159,11 +159,11 @@ class App(QMainWindow):
                         self.warning("This file can't be decrypted!")
                         return
                     try:
-                        # the exception at this point is means that the file
-                        # has good AES-256 structure but the key/pass is wrong
+                        # an exception at this point means that the file
+                        # has right AES-256 structure but the key/pass is wrong
                         # Also there may be a disk i/o exception error while
-                        # saving a file to disk but there is not sense of
-                        # handling it becouse your disk must work well everytime
+                        # saving a file to disk but there is no sense of
+                        # handling it becouse your disk have to work well everytime
                         self.saveFile(f'{filename}.decrypted',unpad(data,32))
                     except Exception as e:
                         print(e)
